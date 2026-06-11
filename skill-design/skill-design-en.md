@@ -1,6 +1,6 @@
 # Skills Are Strongest When They're Small and Explicit — On Designing Reusable Skills
 
-> A set of principles I've put together while building with AI coding agents, on *what makes a skill work versus a skill that just sits there*. This is a follow-up of sorts to my earlier pieces on [Harness Engineering](./claude-harness-ko.md) and the [internal Skills Hub](./samsung-skills-hub-ko.md).
+> A set of principles I've put together while building with AI coding agents, on *what makes a skill work versus a skill that just sits there*.
 
 When you develop with AI agents, at some point you realize something: you keep copy-pasting the same know-how to the model.
 
@@ -77,19 +77,6 @@ And either way, **what really matters is designing the underlying API well.** If
 
 ---
 
-## 3. How You Use Skills — and Make Them Discoverable
-
-Once you've made a skill, the next problem is *how to distribute it and make it discoverable*.
-
-The external ecosystem already has an answer. Vercel's `find-skills` (a meta-skill) + `skills.sh` (a hub) + `skills` (a CLI) interlock so the agent handles the whole flow on its own: *natural-language request → search for the right skill → install → use*.
-
-The catch was that this only runs on the *public internet*. Internal code lives on an internal GitHub, not on github.com. So I ported this exact operating model into a single internal set — the **Samsung Skills Hub**. The internal Hub takes the place of `skills.sh`, `sec-skills` takes the place of the `skills` CLI, and `samsung-find-skills` takes the place of `find-skills`. (I've written up the full background [separately](./samsung-skills-hub-ko.md).)
-
-There's one point here that connects directly to this article's theme: **`find-skills`/`samsung-find-skills` is itself a model example of "an explicit skill that does exactly one thing."** This meta-skill writes no code at all. It does precisely one thing — *"search, present candidates, get approval, install."* Because that single responsibility is written out as an extremely explicit procedure, it behaves identically across every IDE agent.
-
-In other words, the point is: *a well-made skill is easy to discover, reuse, and share*. And for discovery and reuse to be easy — the design principles in the next section have to hold.
-
----
 
 ## 4. How to Design a Good Skill
 
@@ -101,7 +88,7 @@ This is the most important principle. **A single skill should have exactly one p
 
 A skill called "frontend development" is a bad skill. It's too broad, so the agent doesn't know *when* to use it, and the body inevitably turns vague. By contrast, "check accessibility (a11y) attributes on React components" is a good skill. The trigger is clear, the procedure is concrete, and the result is verifiable.
 
-Why explicitness helps is simple. Agents are just like people — give them a *vague instruction* and they work vaguely. A skill that does one thing forces that one thing to be done *precisely*. (This is the same idea I described in my [earlier piece](./claude-harness-ko.md) as "structure forces explicitness.")
+Why explicitness helps is simple. Agents are just like people — give them a *vague instruction* and they work vaguely. A skill that does one thing forces that one thing to be done *precisely*.
 
 ### 4.2 A SKILL.md should not exceed 500 lines
 
@@ -188,7 +175,7 @@ Splitting this way improves two things. First, **each skill gets smaller, so the
 Today's tools have evolved to let you declare the *execution environment* inside a skill. Use this, and a skill becomes more than a document — it becomes a *small unit of execution*.
 
 - **Model declaration** — this skill is light, so use Haiku; that one needs deep reasoning, so use Opus. Specifying the right model per skill captures cost and quality at once.
-- **Subagent declaration** — define a dedicated agent used only within that skill. For instance, embed a "reviewer persona" agent inside a review skill. It implements the pattern of *separating the generator from the evaluator* (see my [earlier piece](./claude-harness-ko.md)) at the skill level.
+- **Subagent declaration** — define a dedicated agent used only within that skill. For instance, embed a "reviewer persona" agent inside a review skill. It implements the pattern of *separating the generator from the evaluator* at the skill level.
 - **Embedded CLI** — `gh` is the baseline, and on top of it you can *embed-call* other coding agents like `codex` or `claude` to delegate subtasks. A kind of recursive structure where a skill drives yet another agent.
 
 At this point a skill is no longer "a document with know-how written in it" — it's **an execution package that bundles model, agent, tools, and procedure into one unit.** And when this meets the hierarchy of 4.5, you get the full picture: small, explicit units of execution snapping together like Lego.
